@@ -1,0 +1,34 @@
+# Local patch of anomalyco/rune at 4a2e437954f01eaacc13c0515a1d39474dd6512c: only the crates
+# prototypie needs patched (rune) plus its path siblings, so they unify. See docs/rune-patches.md.
+[workspace]
+resolver = "2"
+members = ["crates/rune", "crates/rune-motion", "crates/rune-staging", "crates/rune-taffy", "crates/procwatch", "vendor/tiny-skia-path"]
+
+[workspace.package]
+edition = "2024"
+license = "MIT"
+
+# Full debug info for the workspace crates made a single `rune` test build use 18-23 GB of RAM;
+# line tables keep backtraces and file:line in panics at a fraction of that.
+[workspace.lints.rust]
+# PROTOTYPIE: a vendored dependency; its warnings are upstream's, not ours to read on every build.
+warnings = { level = "allow", priority = 10 }
+# shared-lints begin
+unsafe_op_in_unsafe_fn = "deny"
+unused_must_use = "deny"
+# shared-lints end
+unsafe_code = "allow" # shared: forbid; GPU and FFI code needs unsafe
+
+[workspace.lints.clippy]
+# shared-lints begin
+await_holding_lock = "deny"
+await_holding_refcell_ref = "deny"
+dbg_macro = "deny"
+disallowed_types = "deny"
+expect_used = "warn"
+todo = "warn"
+unwrap_used = "warn"
+# shared-lints end
+undocumented_unsafe_blocks = "warn" # shared: deny; errors left
+let_underscore_must_use = "warn" # shared: deny; errors left
+disallowed_methods = "warn" # shared: deny; errors left

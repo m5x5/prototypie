@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Rust (apps/native)
+/apps/native/target/
+/apps/native/dist/
+/apps/native/.pending/
+
+# Node (apps/web)
+node_modules/
+/apps/web/.next/
+/apps/web/out/
+/apps/web/data/
+/apps/web/.env
+/apps/web/.env.local
+*.tsbuildinfo
+
+# Local tooling
+.claude/settings.local.json

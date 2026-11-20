@@ -1,0 +1,41 @@
+[package]
+name = "proto-app"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "prototypie"
+path = "src/main.rs"
+
+[features]
+# Rune's agent tooling (--first-pixels, --snap, ...) in release/perf builds, for launch profiling.
+tooling = ["rune/tooling", "rune/frame-profile"]
+
+[dependencies]
+rune = { workspace = true, features = ["native-file-dialog"] }
+rune-kit.workspace = true
+proto-core.workspace = true
+proto-ai.workspace = true
+tokio.workspace = true
+futures-util = "0.3"
+tempfile = "3"
+proto-web.workspace = true
+proto-server.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+
+# Bringing the running instance forward when a second one starts (app/instance.rs) and the
+# immersive (notch) mode (shell/immersive.rs); the same versions proto-web already builds, so
+# nothing new is fetched.
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6"
+objc2-foundation = { version = "0.3", features = ["NSGeometry"] }
+objc2-app-kit = { version = "0.3", features = ["NSRunningApplication", "NSApplication", "NSResponder", "NSWindow", "NSScreen", "NSGraphics", "NSButton", "NSControl", "NSView"] }
+
+[dev-dependencies]
+tempfile = "3"
+reqwest.workspace = true

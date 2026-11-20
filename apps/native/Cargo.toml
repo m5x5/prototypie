@@ -1,0 +1,51 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+# The local Rune patch is its own workspace (docs/rune-patches.md).
+exclude = ["vendor"]
+
+[workspace.package]
+edition = "2024"
+version = "0.1.0"
+license = "MIT"
+repository = "https://github.com/m5x5/prototypie"
+publish = false
+
+[workspace.dependencies]
+rune = { git = "https://github.com/anomalyco/rune", rev = "4a2e437954f01eaacc13c0515a1d39474dd6512c" }
+rune-kit = { git = "https://github.com/anomalyco/rune", rev = "4a2e437954f01eaacc13c0515a1d39474dd6512c" }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip", "preserve_order"] }
+anyhow = "1"
+tokio = { version = "1", features = ["full"] }
+axum = "0.8"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
+proto-core = { path = "crates/proto-core" }
+proto-server = { path = "crates/proto-server" }
+proto-ai = { path = "crates/proto-ai" }
+proto-web = { path = "crates/proto-web" }
+
+[patch.crates-io]
+accesskit_macos = { git = "https://github.com/anomalyco/rune", rev = "4a2e437954f01eaacc13c0515a1d39474dd6512c" }
+accesskit_windows = { git = "https://github.com/anomalyco/rune", rev = "4a2e437954f01eaacc13c0515a1d39474dd6512c" }
+parley_engine = { git = "https://github.com/anomalyco/rune", rev = "4a2e437954f01eaacc13c0515a1d39474dd6512c" }
+wgpu-hal = { git = "https://github.com/anomalyco/rune", rev = "4a2e437954f01eaacc13c0515a1d39474dd6512c" }
+winit = { git = "https://github.com/anomalyco/rune", rev = "4a2e437954f01eaacc13c0515a1d39474dd6512c" }
+
+# Local Rune patch (docs/rune-patches.md): `Pixels::with_rgba`. `rune` plus its path siblings, so
+# rune-kit and rune resolve to one copy of each.
+[patch."https://github.com/anomalyco/rune"]
+rune = { path = "vendor/rune-patched/crates/rune" }
+rune-motion = { path = "vendor/rune-patched/crates/rune-motion" }
+rune-staging = { path = "vendor/rune-patched/crates/rune-staging" }
+rune-taffy = { path = "vendor/rune-patched/crates/rune-taffy" }
+procwatch = { path = "vendor/rune-patched/crates/procwatch" }
+tiny-skia-path = { path = "vendor/rune-patched/vendor/tiny-skia-path" }
+
+# Keep target/ small (the disk ran full): line tables for our crates, no debug info for dependencies.
+[profile.dev]
+debug = "line-tables-only"
+incremental = false
+
+[profile.dev.package."*"]
+debug = false
