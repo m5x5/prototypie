@@ -170,7 +170,8 @@ impl AppState {
         self.wake = Some(wake.clone());
         // Queue items started from this app are announced to the notes service like the server's own
         // (same pair as `ServeOpts::default()`), so worker agents see them.
-        self.runner.config.notifier = Some(proto_server::notifier(proto_server::DEFAULT_NOTES_URL, proto_server::DEFAULT_APP_URL));
+        let (notes_url, app_url) = super::server::service_urls(super::server::configured_addr());
+        self.runner.config.notifier = Some(proto_server::notifier(&notes_url, &app_url));
         self.data.start_loading(wake.clone());
         crate::cards::setup(self, wake.clone());
         crate::runner::setup(self, wake.clone());

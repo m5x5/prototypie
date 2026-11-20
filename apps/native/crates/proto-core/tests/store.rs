@@ -222,7 +222,16 @@ fn import_reference_copies_once_and_never_writes_the_source() {
     assert_eq!(import_reference(&src, &dir).unwrap(), ImportOutcome::AlreadyPresent);
     assert_eq!(std::fs::read(&src).unwrap(), body, "source untouched");
 
-    let store = Store::open(&dir).unwrap();
+    // Another test spawns a child process; for an instant that child can still hold a copy of our released lock.
+    let store = (0..100)
+        .find_map(|_| match Store::open(&dir) {
+            Ok(s) => Some(s),
+            Err(_) => {
+                std::thread::sleep(std::time::Duration::from_millis(20));
+                None
+            }
+        })
+        .expect("opening the imported data dir");
     assert_eq!(store.cursor().epoch, "ref");
     store.apply(vec![Change::delete("designs/a")], meta()).unwrap();
     store.flush().unwrap();

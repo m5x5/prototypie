@@ -28,6 +28,24 @@ pub struct Server {
     handle: Option<proto_server::ServerHandle>,
 }
 
+/// The address the embedded server binds: `PROTOTYPIE_ADDR` when it parses, else the default. Bad input is
+/// logged and falls back to the default.
+pub fn configured_addr() -> SocketAddr {
+    let default: SocketAddr = proto_server::DEFAULT_ADDR.parse().expect("addr");
+    match std::env::var("PROTOTYPIE_ADDR") {
+        Ok(v) if !v.trim().is_empty() => v.trim().parse().unwrap_or_else(|e| {
+            eprintln!("prototypie: PROTOTYPIE_ADDR {v:?} isn't host:port ({e}); using {default}");
+            default
+        }),
+        _ => default,
+    }
+}
+
+/// The notes service and app URLs that belong to a server bound on `addr`.
+pub fn service_urls(addr: SocketAddr) -> (String, String) {
+    (format!("http://{addr}"), format!("http://localhost:{}/", addr.port()))
+}
+
 impl Server {
     /// Bind 127.0.0.1:3124 now (synchronous: a taken port fails here) and serve on a new runtime.
     /// `ai` is the app's generation service when it has one; else the server gets its own, which
@@ -35,15 +53,7 @@ impl Server {
     /// `PROTOTYPIE_ADDR` (e.g. `127.0.0.1:3126`) overrides the address, so benchmark instances with a
     /// temp `PROTOTYPIE_DATA` never touch :3124; bad input is logged and falls back to the default.
     pub fn start(&mut self, store: Store, ai: Option<proto_ai::Ai>) {
-        let default: SocketAddr = proto_server::DEFAULT_ADDR.parse().expect("addr");
-        let addr = match std::env::var("PROTOTYPIE_ADDR") {
-            Ok(v) if !v.trim().is_empty() => v.trim().parse().unwrap_or_else(|e| {
-                eprintln!("prototypie: PROTOTYPIE_ADDR {v:?} isn't host:port ({e}); using {default}");
-                default
-            }),
-            _ => default,
-        };
-        self.start_on(store, ai, addr);
+        self.start_on(store, ai, configured_addr());
     }
 
     fn start_on(&mut self, store: Store, ai: Option<proto_ai::Ai>, addr: SocketAddr) {
@@ -61,7 +71,8 @@ impl Server {
                 return;
             }
         };
-        let opts = proto_server::ServeOpts { addr, runtime: Some(rt.handle().clone()), ..Default::default() };
+        let (notes_url, app_url) = service_urls(addr);
+        let opts = proto_server::ServeOpts { addr, runtime: Some(rt.handle().clone()), notes_url, app_url, ..Default::default() };
         let ai = ai.unwrap_or_else(|| proto_ai::Ai::with_codex(dir, proto_server::notifier(&opts.notes_url, &opts.app_url)));
         match proto_server::start(store, ai, opts) {
             Ok(h) => {

@@ -170,7 +170,7 @@ impl App {
             changes.push(json!({ "path": format!("designs/{id}"), "value": { "id": id, "spaceId": "zz-proj", "kind": "variation", "title": format!("Direction {}", i + 1), "rationale": "", "html": "", "status": "generating", "position": { "x": 0, "y": 0 }, "createdAt": i + 1 } }));
         }
         self.put_state(Value::Array(changes));
-        for _ in 0..200 {
+        for _ in 0..800 {
             let items = self.get("/api/agent-queue")["items"].as_array().cloned().unwrap_or_default();
             if items.iter().filter(|i| i["jobId"] == job.as_str() && i["annotationId"].is_string()).count() == count {
                 return job;
