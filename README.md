@@ -20,7 +20,38 @@ Both keep designs in a `state.json` of the same format, so work can move between
 > upstream as issues. Details and the licence texts: [`apps/native/docs/rune-patches.md`](apps/native/docs/rune-patches.md)
 > and [`NOTICE.md`](NOTICE.md).
 
-## Quick start
+## Screenshots
+
+The native app with sample projects (all names and designs are made up).
+
+![Projects on the main canvas](docs/images/projects.png)
+*Projects on the main canvas, each with a preview of its latest design.*
+
+![An exploration with design cards](docs/images/canvas.png)
+*An exploration: design variations for desktop and phone side by side.*
+
+![A design in fullscreen](docs/images/fullscreen.png)
+*A design in fullscreen, with the card's note and a field to request a change.*
+
+![Annotate mode](docs/images/annotate.png)
+*Annotate mode: pin notes to elements of a design and hand them to a coding agent.*
+
+![Agent tasks panel](docs/images/agents.png)
+*The agent-tasks panel: what your coding agent is working on and what is waiting.*
+
+## Install
+
+**Native app (Apple Silicon, macOS 13+).** With [Homebrew](https://brew.sh):
+
+```sh
+brew install --cask m5x5/tap/prototypie
+brew upgrade --cask prototypie          # update later
+```
+
+Or download the DMG from the [latest release](https://github.com/m5x5/prototypie/releases/latest), drag the app to
+Applications and right-click > Open on first launch (the app is ad hoc signed, not notarized).
+
+## Build from source
 
 **Native app (macOS 13+).** Install the pinned Rust toolchain through [rustup](https://rustup.rs) (it picks it up from
 `rust-toolchain.toml`), then:
